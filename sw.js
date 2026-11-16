@@ -2,7 +2,7 @@
 // Responde logo com a cópia guardada e, se houver rede, atualiza-a em segundo plano
 // (as alterações aparecem na abertura seguinte). Ao adicionar ficheiros novos, junta-os
 // a ASSETS e sobe a versão de CACHE.
-const CACHE = 'arcada-v3';
+const CACHE = 'arcada-v4';
 const ASSETS = [
   './',
   'index.html',
@@ -19,6 +19,18 @@ const ASSETS = [
   'js/games/mines.js',
   'js/games/sudoku.js',
   'js/games/solitaire.js',
+  'js/games/rhythm.js',
+  'js/games/tilt.js',
+  'js/games/naval.js',
+  'js/games/checkers.js',
+  'js/games/chess.js',
+  'js/games/idle.js',
+  'js/games/words-data.js',
+  'js/games/words.js',
+  'js/games/parking.js',
+  'js/games/golf.js',
+  'js/games/fishing.js',
+  'js/games/cards.js',
   'manifest.webmanifest',
   'icons/icon-180.png',
   'icons/icon-192.png',
