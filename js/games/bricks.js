@@ -290,7 +290,7 @@
       S.phase = 'over';
       ptr = null;
       const best = Arcade.store.get('bricks:best', 0);
-      const record = S.score > best;
+      const record = S.score > best || S.recSet;
       if (record) Arcade.store.set('bricks:best', S.score);
       overlay.innerHTML = `
         <h2>${record ? 'Novo recorde!' : 'Fim de jogo'}</h2>
@@ -307,9 +307,17 @@
       overlay.querySelector('[data-a=menu]').onclick = host.exit;
     }
 
+
+    // O recorde fica guardado mesmo que saias a meio da partida.
+    function commitBest() {
+      if (!S) return;
+      const v = S.score;
+      if (v > Arcade.store.get('bricks:best', 0)) { Arcade.store.set('bricks:best', v); S.recSet = true; }
+    }
     function pause() {
       if (S.phase !== 'play') return;
       S.phase = 'paused';
+      commitBest();
       ptr = null; keys.left = keys.right = false;
       overlay.innerHTML = `
         <h2>Pausa</h2>
@@ -453,6 +461,7 @@
 
     return {
       destroy() {
+        commitBest();
         loop.stop();
         disposeCanvas();
         canvas.removeEventListener('pointerdown', onDown);

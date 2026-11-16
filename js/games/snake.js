@@ -208,7 +208,7 @@
     function gameOver() {
       S.phase = 'over';
       const best = Arcade.store.get('snake:best', 0);
-      const record = S.score > best;
+      const record = S.score > best || S.recSet;
       if (record) Arcade.store.set('snake:best', S.score);
       overlay.innerHTML = `
         <h2>${record ? 'Novo recorde!' : 'Fim de jogo'}</h2>
@@ -225,11 +225,19 @@
       overlay.querySelector('[data-a=menu]').onclick = host.exit;
     }
 
+
+    // O recorde fica guardado mesmo que saias a meio da partida.
+    function commitBest() {
+      if (!S) return;
+      const v = S.score;
+      if (v > Arcade.store.get('snake:best', 0)) { Arcade.store.set('snake:best', v); S.recSet = true; }
+    }
     let resumePhase = 'play';
     function pause() {
       if (S.phase !== 'play' && S.phase !== 'ready') return;
       resumePhase = S.phase;
       S.phase = 'paused';
+      commitBest();
       sw = null;
       overlay.innerHTML = `
         <h2>Pausa</h2>
@@ -435,6 +443,7 @@
 
     return {
       destroy() {
+        commitBest();
         loop.stop();
         disposeCanvas();
         canvas.removeEventListener('pointerdown', onDown);
