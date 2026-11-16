@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Horas Mortas: Deathmatch</title>
+<style>
+  :root{--panel:rgba(10,12,14,.72);--line:rgba(255,255,255,.16);--ink:#f1f2ee;--dim:#a9ada6;--acc:#f0a429;--red:#ff4338;--ok:#8fd16a}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0;background:#0c0d0e;color:var(--ink);overflow:hidden;
+    font-family:"Bahnschrift","DIN Alternate","Roboto Condensed","Arial Narrow","Segoe UI",system-ui,sans-serif;
+    user-select:none;-webkit-user-select:none;touch-action:none}
+  canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+  #hud{position:fixed;inset:0;pointer-events:none;display:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  #hud.on{display:block}
+  #vign{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.42) 100%)}
+  #blood{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at center,transparent 38%,rgba(150,0,0,.75) 100%)}
+  #flash{position:absolute;inset:0;opacity:0;background:#fff}
+  #cross{position:absolute;left:50%;top:50%;width:0;height:0}
+  #cross i{position:absolute;background:#fff;box-shadow:0 0 2px #000}
+  #cross .t,#cross .b{left:-1px;width:2px;height:9px}#cross .l,#cross .r{top:-1px;height:2px;width:9px}
+  #cross .d{left:-1px;top:-1px;width:2px;height:2px}
+  #hitm{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;opacity:0;
+    background:linear-gradient(45deg,transparent 46%,#fff 46%,#fff 54%,transparent 54%),linear-gradient(-45deg,transparent 46%,#fff 46%,#fff 54%,transparent 54%);
+    -webkit-mask:radial-gradient(circle,transparent 7px,#000 8px);mask:radial-gradient(circle,transparent 7px,#000 8px)}
+  #hitm.kill{filter:drop-shadow(0 0 3px var(--red)) sepia(1) saturate(9) hue-rotate(-40deg)}
+  #dmgdir{position:absolute;left:50%;top:50%;width:0;height:0;opacity:0}
+  #dmgdir i{position:absolute;left:-60px;top:-170px;width:120px;height:26px;border-radius:50%/100% 100% 0 0;background:radial-gradient(ellipse at 50% 100%,transparent 55%,rgba(255,40,30,.95) 61%,transparent 100%)}
+  #scope{position:absolute;inset:0;display:none;background:radial-gradient(circle at center,transparent 0,transparent 34vmin,rgba(0,0,0,.92) 34.5vmin,#000 40vmin)}
+  #scope:before,#scope:after{content:"";position:absolute;background:#000}
+  #scope:before{left:50%;top:calc(50% - 34vmin);width:1px;height:68vmin}#scope:after{top:50%;left:calc(50% - 34vmin);height:1px;width:68vmin}
+  #aimName{position:absolute;left:50%;top:calc(50% + 34px);transform:translateX(-50%);font-size:14px;font-weight:700;color:var(--red);letter-spacing:.04em;opacity:0}
+  .lab{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  #top{position:absolute;left:50%;top:42px;transform:translateX(-50%);display:flex;gap:2px;align-items:stretch}
+  #top>div{background:var(--panel);padding:5px 14px;text-align:center;min-width:86px}
+  #top b{display:block;font-size:22px;line-height:1.05;font-weight:700}
+  #timer b{font-size:26px;color:#fff}#timer.low b{color:var(--red)}
+  #meBox{border-bottom:3px solid var(--acc)}#ldBox{border-bottom:3px solid var(--red)}
+  #mini{position:absolute;left:14px;top:42px;width:158px;height:158px;border:1px solid var(--line);background:rgba(8,10,10,.6)}
+  #feed{position:absolute;left:14px;top:210px;font-size:13px;max-width:44vw}
+  #feed div{background:var(--panel);padding:3px 9px;margin-bottom:3px;width:fit-content;animation:fade 6s forwards}
+  #feed b{color:var(--red);font-weight:700}#feed .me{color:var(--acc)}#feed span{opacity:.7}
+  @keyframes fade{0%,82%{opacity:1}100%{opacity:0}}
+  #pops{position:absolute;left:calc(50% + 70px);top:calc(50% - 30px);font-size:16px;font-weight:700}
+  #pops div{animation:pop 1.6s forwards;color:#fff}#pops b{color:var(--acc)}
+  @keyframes pop{0%{opacity:0;transform:translateX(-14px)}12%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
+  #bl{position:absolute;left:14px;bottom:16px;width:min(250px,40vw)}
+  .bar{height:8px;background:rgba(0,0,0,.5);overflow:hidden;margin-top:4px;border:1px solid rgba(255,255,255,.14)}
+  #hpFill{display:block;height:100%;background:#fff;width:100%}
+  #br{position:absolute;right:14px;bottom:16px;text-align:right}
+  #ammo{font-size:44px;font-weight:700;line-height:.95}#ammo small{font-size:18px;color:var(--dim);font-weight:500}
+  #wName{font-size:13px;color:var(--ink);letter-spacing:.12em}
+  #equip{display:flex;gap:6px;justify-content:flex-end;margin-top:8px}
+  .eq{position:relative;background:var(--panel);border:1px solid var(--line);padding:5px 9px;font-size:13px;font-weight:600;min-width:58px;text-align:center;overflow:hidden}
+  .eq kbd{font:inherit;font-size:10px;color:var(--dim);margin-right:5px}
+  .eq .cd{position:absolute;left:0;bottom:0;height:3px;background:var(--acc);width:100%}
+  .eq.off{opacity:.45}
+  #center{position:absolute;left:0;right:0;top:22%;text-align:center}
+  #big{font-size:clamp(20px,3.4vw,38px);font-weight:700;letter-spacing:.12em;opacity:0;transition:opacity .3s}
+  #sub{font-size:15px;color:var(--dim);margin-top:4px;opacity:0;transition:opacity .3s}
+  #streak{position:absolute;left:0;right:0;top:66%;text-align:center;font-size:17px;font-weight:700;letter-spacing:.1em;color:var(--acc);opacity:0;transition:opacity .3s}
+  #board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,92vw);background:rgba(8,10,10,.86);border:1px solid var(--line);display:none;pointer-events:none}
+  #board.on{display:block}
+  #board h3{margin:0;padding:10px 14px;font-size:13px;letter-spacing:.18em;border-bottom:1px solid var(--line);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{font-size:10.5px;letter-spacing:.14em;color:var(--dim);font-weight:600;text-align:right;padding:6px 14px}th:nth-child(2){text-align:left}
+  td{padding:5px 14px;text-align:right;border-top:1px solid rgba(255,255,255,.06);font-variant-numeric:tabular-nums}td:nth-child(2){text-align:left;font-weight:600}td:first-child{color:var(--dim);width:36px}
+  tr.me td{background:rgba(240,164,41,.16);color:#fff}
+  #buy{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,92vw);background:rgba(8,10,10,.9);border:1px solid var(--line);display:none;pointer-events:auto;text-shadow:none}
+  #buy.on{display:block}
+  #buy h3{margin:0;padding:10px 14px;font-size:13px;letter-spacing:.18em;border-bottom:1px solid var(--line);color:var(--dim)}
+  #buy div{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
+  #buy div.on{background:rgba(240,164,41,.18)}
+  #buy kbd{font:inherit;font-weight:700;color:#1a1200;background:var(--acc);padding:0 7px}
+  #buy b{font-size:16px;width:92px;flex:none}#buy span{font-size:12.5px;color:var(--dim)}
+  #buy p{margin:0;padding:8px 14px;font-size:11.5px;color:var(--dim);border-top:1px solid var(--line)}
+  #focus{position:absolute;inset:0;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,rgba(60,120,255,.06) 30%,rgba(40,90,255,.34) 100%)}
+  #xp{position:absolute;left:50%;top:102px;transform:translateX(-50%);width:262px;height:4px;background:rgba(0,0,0,.5);display:none}
+  #xpFill{display:block;height:100%;background:var(--acc);width:0}
+  #perk{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(470px,94vw);background:rgba(8,10,10,.93);border:1px solid var(--acc);display:none;pointer-events:auto;text-shadow:none}
+  #perk.on{display:block}
+  #perk h3{margin:0;padding:11px 14px;font-size:13px;letter-spacing:.2em;border-bottom:1px solid var(--line);color:var(--acc)}
+  #perkCards div{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);cursor:pointer}
+  #perkCards kbd{font:inherit;font-weight:700;color:#1a1200;background:var(--acc);padding:1px 8px}
+  #perkCards i{font-style:normal;font-size:24px;width:30px;text-align:center}
+  #perkCards b{display:block;font-size:16px}#perkCards em{font-style:normal;font-size:11px;color:var(--acc);margin-left:6px}
+  #perkCards small{font-size:12.5px;color:var(--dim)}
+  #perk p{margin:0;padding:8px 14px;font-size:11.5px;color:var(--dim);border-top:1px solid var(--line)}
+  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(6,7,8,.66);padding:18px;overflow:auto}
+  .overlay.on{display:flex}
+  .box{width:min(560px,100%)}
+  h1{font-size:clamp(34px,8vw,64px);margin:0;line-height:.9;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+  h1 span{color:var(--acc)}
+  .tag{font-size:12px;letter-spacing:.3em;color:var(--dim);margin:8px 0 16px}
+  h2{font-size:32px;margin:0 0 4px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  p{color:#cfd2cb;font-size:14px;line-height:1.5;margin:8px 0}
+  .row{display:flex;align-items:center;gap:10px;margin-top:9px}
+  .row>span{width:104px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);flex:none}
+  .seg{display:flex;flex:1;gap:3px}
+  .seg button{flex:1;padding:9px 4px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .seg button.on{background:var(--acc);color:#1a1200;border-color:var(--acc)}
+  input[type=range]{flex:1;accent-color:var(--acc)}
+  button.btn{display:block;width:100%;margin:16px 0 0;padding:15px;border:0;background:var(--acc);color:#1a1200;font:inherit;font-weight:700;font-size:18px;letter-spacing:.14em;cursor:pointer;text-transform:uppercase}
+  button.btn:disabled{opacity:.5;cursor:default}
+  button.btn.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line);font-size:14px;margin-top:8px}
+  .keys{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px;font-size:12.5px;color:#cfd2cb;background:var(--panel);padding:11px 14px;margin-top:14px}
+  .keys b{color:#fff}
+  .stats{display:flex;gap:3px;margin:12px 0 0}
+  .stat{flex:1;background:var(--panel);padding:8px 4px;text-align:center}
+  .stat b{display:block;font-size:20px}.stat span{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.12em}
+  #endBoard{margin-top:12px;background:var(--panel)}
+  #touch{position:fixed;inset:0;pointer-events:none;display:none}
+  #touch.on{display:block}
+  .tb{position:absolute;pointer-events:auto;width:54px;height:54px;border-radius:50%;border:1px solid var(--line);background:rgba(10,12,14,.55);color:#fff;font:inherit;font-size:11px;font-weight:700}
+  #tJump{right:16px;bottom:104px}#tAds{right:140px;bottom:92px}#tNade{right:78px;bottom:126px}#tSwap{right:16px;bottom:170px}#tRel{right:78px;bottom:190px}#tRadar{right:140px;bottom:160px}
+  #tCrouch{left:16px;bottom:130px}#tPause{right:14px;top:92px;width:40px;height:40px;border-radius:6px}
+  #joyV{position:absolute;width:96px;height:96px;border:2px solid rgba(255,255,255,.3);border-radius:50%;display:none}
+  #joyV i{position:absolute;left:28px;top:28px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.45)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud">
+  <div id="vign"></div><div id="focus"></div><div id="blood"></div><div id="flash"></div><div id="scope"></div>
+  <div id="cross"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i><i class="d"></i></div>
+  <div id="hitm"></div><div id="dmgdir"><i></i></div><div id="aimName"></div>
+  <canvas id="mini" width="316" height="316"></canvas>
+  <div id="feed"></div>
+  <div id="top">
+    <div id="meBox"><span class="lab" id="meL">Tu</span><b id="meK">0</b></div>
+    <div id="timer"><span class="lab" id="timerL">Tempo</span><b id="time">5:00</b></div>
+    <div id="ldBox"><span class="lab" id="ldName">Líder</span><b id="ldK">0</b></div>
+  </div>
+  <div id="xp"><i id="xpFill"></i></div>
+  <div id="pops"></div>
+  <div id="center"><div id="big"></div><div id="sub"></div></div>
+  <div id="streak"></div>
+  <div id="bl"><span class="lab">Vida</span><div class="bar"><i id="hpFill"></i></div></div>
+  <div id="br"><div class="lab" id="wName">—</div><div id="ammo">0 <small>/ 0</small></div>
+    <div id="equip"><div class="eq" id="eqDash" style="display:none"><kbd>E</kbd>DASH<div class="cd"></div></div><div class="eq" id="eqFocus" style="display:none"><kbd>V</kbd>FOCO<div class="cd"></div></div><div class="eq"><kbd>B</kbd>ARMAS</div><div class="eq"><kbd>3</kbd>FACA</div><div class="eq" id="eqRadar"><kbd>F</kbd>RADAR<div class="cd"></div></div><div class="eq" id="eqNade"><kbd>G</kbd>GRANADA ×<span id="nadeN">2</span></div></div></div>
+  <div id="buy"><h3>ARMA PRINCIPAL</h3>
+    <div data-id="ar"><kbd>1</kbd><b>Assalto</b><span>automática, equilibrada a qualquer distância</span></div>
+    <div data-id="smg"><kbd>2</kbd><b>SMG</b><span>cadência alta, forte ao perto, mais rápida a andar</span></div>
+    <div data-id="shotgun"><kbd>3</kbd><b>Caçadeira</b><span>mata num tiro a curta distância</span></div>
+    <div data-id="sniper"><kbd>4</kbd><b>Sniper</b><span>um tiro no corpo chega, luneta com o botão direito</span></div>
+    <p>Carrega no número para equipar já · B fecha</p></div>
+  <div id="perk"><h3>ESCOLHE UMA HABILIDADE</h3><div id="perkCards"></div><p>Carrega em 1, 2 ou 3 · o jogo está parado</p></div>
+  <div id="board"><h3 id="boardH">CLASSIFICAÇÃO · TODOS CONTRA TODOS</h3><table id="boardT"></table></div>
+</div>
+
+<div id="touch">
+  <div id="joyV"><i></i></div>
+  <button class="tb" id="tJump">SALTO</button><button class="tb" id="tAds">MIRA</button><button class="tb" id="tNade">GRAN.</button><button class="tb" id="tSwap">ARMA</button>
+  <button class="tb" id="tRel">RECAR.</button><button class="tb" id="tRadar">RADAR</button><button class="tb" id="tCrouch">BAIXAR</button><button class="tb" id="tPause">II</button>
+</div>
+
+<div class="overlay on" id="menu"><div class="box">
+  <h1>Horas Mortas<br><span>Deathmatch</span></h1>
+  <div class="tag">DEATHMATCH POR TEMPO · INCURSÃO POR SALAS</div>
+  <div class="row"><span>Modo</span><div class="seg" data-k="mode"><button data-v="dm">Deathmatch</button><button data-v="run">Incursão</button></div></div>
+  <div class="row"><span>Duração</span><div class="seg" data-k="dur"><button data-v="180">3 min</button><button data-v="300">5 min</button><button data-v="600">10 min</button></div></div>
+  <div class="row"><span>Adversários</span><div class="seg" data-k="bots"><button data-v="5">5</button><button data-v="7">7</button><button data-v="11">11</button></div></div>
+  <div class="row"><span>Dificuldade</span><div class="seg" data-k="diff"><button data-v="0">Recruta</button><button data-v="1">Regular</button><button data-v="2">Veterano</button></div></div>
+  <div class="row"><span>Arma principal</span><div class="seg" data-k="primary"><button data-v="ar">Assalto</button><button data-v="smg">SMG</button><button data-v="shotgun">Caçadeira</button><button data-v="sniper">Sniper</button></div></div>
+  <div class="row"><span>Gráficos</span><div class="seg" data-k="gfx"><button data-v="0">Normal</button><button data-v="1">Cinemático</button></div></div>
+  <div class="row"><span>Sensibilidade</span><input type="range" id="sens" min="0.3" max="2.5" step="0.05" value="1"></div>
+  <button class="btn" id="bPlay" disabled>A carregar…</button><button class="btn alt" id="bFull">Ecrã inteiro (recomendado se usares Ctrl para baixar)</button>
+  <div class="stats">
+    <div class="stat"><b id="mWins">0</b><span>Vitórias</span></div><div class="stat"><b id="mGames">0</b><span>Partidas</span></div>
+    <div class="stat"><b id="mKills">0</b><span>Abates</span></div><div class="stat"><b id="mKD">—</b><span>K/D</span></div><div class="stat"><b id="mLvl">—</b><span>Melhor nível</span></div>
+  </div>
+  <div class="keys">
+    <div><b>WASD</b> mexer · <b>Shift</b> correr</div><div><b>Rato esq.</b> disparar · <b>dir.</b> mira</div>
+    <div><b>C</b> ou <b>Ctrl</b> (segurar) baixar</div><div>A correr + <b>C</b>: deslizar</div>
+    <div><b>1</b> principal · <b>2</b> pistola · <b>3</b> faca</div><div><b>Q</b> última arma · <b>B</b> escolher arma</div>
+    <div><b>G</b> granada na mão, clique lança</div><div><b>R</b> recarregar · <b>F</b> radar</div>
+    <div><b>Tab</b> classificação · <b>Esc</b> pausa</div><div>Com a faca corres mais depressa</div>
+  </div>
+</div></div>
+
+<div class="overlay" id="pause"><div class="box">
+  <h2>Pausa</h2><p>A partida está parada.</p>
+  <div class="row"><span>Arma principal</span><div class="seg" data-k="primary"><button data-v="ar">Assalto</button><button data-v="smg">SMG</button><button data-v="shotgun">Caçadeira</button><button data-v="sniper">Sniper</button></div></div>
+  <div class="row"><span>Sensibilidade</span><input type="range" id="sens2" min="0.3" max="2.5" step="0.05" value="1"></div>
+  <p style="font-size:12px;color:var(--dim)">A troca de arma principal aplica-se quando renasceres.</p>
+  <button class="btn" id="bCont">Continuar</button><button class="btn alt" id="bFull2">Ecrã inteiro</button><button class="btn alt" id="bQuit">Sair para o menu</button>
+</div></div>
+
+<div class="overlay" id="over"><div class="box">
+  <h2 id="oTitle">Fim da partida</h2><p id="oMsg"></p>
+  <div id="endBoard"><table id="endT"></table></div>
+  <button class="btn" id="bAgain">Jogar outra</button><button class="btn alt" id="bMenu">Menu</button>
+</div></div>
+
+<div class="overlay" id="err"><div class="box"><h2>O motor 3D não carregou</h2><p>Confirma que as pastas <b>lib</b> e <b>js</b> estão junto do index.html e recarrega a página.</p></div></div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/GLTFLoader.js"></script>
+<script src="lib/SkeletonUtils.js"></script>
+<script src="lib/Sky.js"></script>
+<script src="lib/postfx.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/tex.js"></script>
+<script src="js/world.js"></script>
+<script src="js/anims.js"></script>
+<script src="js/chars.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

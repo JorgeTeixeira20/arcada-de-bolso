@@ -1,0 +1,7 @@
+{
+  "name": "horas-mortas-deathmatch",
+  "version": "2.0.0",
+  "description": "Deathmatch todos-contra-todos contra bots, em three.js",
+  "private": true,
+  "scripts": { "start": "node server.js" }
+}
