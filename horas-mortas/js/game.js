@@ -744,6 +744,7 @@ function fx(dt){
     hipY*(1-a)-w.sight*VS*a+br-Math.abs(Math.sin(P.bob))*.008*mv*(1+1.5*sK)-rl*.075-sw*.22-.03*sK-P.landK*.03+clamp(P.vy,-6,6)*.0035-P.crouch*.008*(1-a)+lagY*.2+st*.03+th*.06-th*th*.2,
     hipZ*(1-a)+adsZ*a+kick*.028+sK*.03-bt*.02-st*.17-th*.16);
   vmRoot.rotation.set(kick*.045-rl*.5-sw*.7-.22*sK*(w.melee?.3:1)+lagY*.6+bt*.06+st*.25-th*1.1,(.04)*(1-a)+.62*sK*(w.melee?.25:1)+lagX*.9+rl*.25+st*.35,kickR*.03*(1-.6*a)+rl*.5-.12*sK+lagX*.5-bt*.25+sl*.28*(1-a)-st*.5-slR*1.1,'YXZ');
+  if(o.rot){const rk=1-.5*(P.inspK||0);vmRoot.rotation.x+=o.rot[0]*rk;vmRoot.rotation.y+=o.rot[1]*rk;vmRoot.rotation.z+=o.rot[2]*rk;}
   if(P.inspK>.01){const ik2=P.inspK,ph=(P.inspT||0)/(P.inspD||2.4),sn=Math.sin(ph*TAU),cs=Math.cos(ph*TAU);
     vmRoot.position.x+=ik2*(-hipX*.7+sn*.02);vmRoot.position.y+=ik2*(.045+(w.melee?.03:0));vmRoot.position.z+=ik2*(w.melee?.02:.05);
     vmRoot.rotation.y+=ik2*(w.melee?.5:.75)*sn+ik2*.25;vmRoot.rotation.x+=ik2*(.3+.18*Math.sin(ph*TAU*2));vmRoot.rotation.z+=ik2*(.75*sn*(w.melee?.6:1)-.15);
@@ -852,13 +853,14 @@ function clearExceptArms(g){for(const c of g.children.slice())if(c!==g.userData.
 function installModel(k){
   if(k==='m16'){
     const o=vm.ar,w=fitModel(MD.m16,.92);clearExceptArms(o.g);w.position.set(0,.03,-.06);o.pump=null;o.mdl=w;o.hip=MDO.hip;o.adsZ=MDO.adsZ;
-    w.updateMatrixWorld(true);const rs=w.getObjectByName('REAR_SIGHT');if(rs){_bb.setFromObject(rs);MDO.sight=_bb.max.y-MDO.sd;}o.g.add(w);
+    w.updateMatrixWorld(true);let top=-1;['REAR_SIGHT','FRONT_SIGHT'].forEach(n=>{const q=w.getObjectByName(n);if(q){_bb.setFromObject(q);top=Math.max(top,_bb.max.y);}});if(top>0)MDO.sight=top+MDO.sd;o.g.add(w);
     const mg=w.getObjectByName('MAGAZINE');if(mg){camera.updateMatrixWorld(true);const Mx=new T.Matrix4().copy(mg.parent.matrixWorld).invert().multiply(vmRoot.matrixWorld);o.mag=mg;o.magBase=mg.position.clone();o.magDir=new T.Vector3(0,-1,0).applyMatrix4(Mx).sub(new T.Vector3(0,0,0).applyMatrix4(Mx));}else o.mag=null;
     WP.ar.sight=MDO.sight;WP.ar.L=.6;o.g.userData.grip=[0,-.055,.06];o.g.userData.fore=[0,-.035,-.3];
     CH.gunFactory=function(){const g=fitModel(MD.m16,1.0,{shadow:true});const h=new T.Group();g.rotation.y=Math.PI;g.position.set(0,.03,.13);h.add(g);return h;};
   }else if(k==='karambit'){
-    const o=vm.karambit,w=fitModel(MD.karambit,.21);for(const c of o.spin.children.slice())o.spin.remove(c);w.position.set(0,-.008,-.082);o.spin.add(w);
-    const tl=o.spin.parent;tl.scale.setScalar(1);tl.rotation.set(1.3,.5,-.25);tl.position.set(-.005,.035,.03);o.g.userData.grip=[0,-.005,-.02];
+    const o=vm.karambit,w=fitModel(MD.karambit,.21);for(const c of o.spin.children.slice())o.spin.remove(c);w.position.set(0,-.008,-.082);o.spin.add(w);o.mdl=w;
+    /* a argola fica no eixo de rotação (spin) e a mão é posta de modo a que o indicador fique na argola */
+    const tl=o.spin.parent;tl.scale.setScalar(1);tl.rotation.set(1.3,.5,-.25);tl.position.set(-.005,.035,.03);o.g.userData.grip=[0,-.035,-.01];
   }else if(k==='butterfly'){
     const o=vm.butterfly,w=fitModel(MD.butterfly,.24,{pca:true,flip:MDO.bflip,flipUp:MDO.bup});for(const c of o.pivot.children.slice())o.pivot.remove(c);o.hA=o.hB=null;
     const fl=new T.Group();fl.add(w);w.position.set(0,0,-.05);w.rotation.z=MDO.broll;o.pivot.add(fl);o.flip=fl;o.mdl=w;const tl=o.pivot.parent;tl.scale.setScalar(1);tl.rotation.set(.7,.45,-.2);o.g.userData.grip=[0,-.005,.03];
@@ -869,7 +871,7 @@ function installModel(k){
   }
   const wi=P.slots&&P.slots[P.cur];if(wi&&P.alive)Object.keys(vm).forEach(q=>vm[q].g.visible=q===VK(wi.id));
 }
-const MDO={bflip:false,bup:false,broll:1.2,hip:[.14,-.17,-.5],adsZ:-.3,sight:.128,sd:.02};
+const MDO={bflip:false,bup:false,broll:1.2,hip:[.14,-.17,-.5],adsZ:-.4,sight:.128,sd:.02};
 function loadModels(){
   if(!window.MODELS||!T.GLTFLoader)return;let sh=false;try{window.createImageBitmap=undefined;sh=true;}catch(e){}
   Object.keys(window.MODELS).forEach(k=>{try{const bin=atob(window.MODELS[k]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
