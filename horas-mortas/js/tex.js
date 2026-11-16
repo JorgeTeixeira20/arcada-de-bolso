@@ -69,6 +69,11 @@ TX.flare=function(){const s=128,c=cv(s),g=c.getContext('2d'),gr=g.createRadialGr
   for(let i=0;i<7;i++){const a=rnd(0,6.28),l=rnd(30,62);g.lineWidth=rnd(2,6);g.beginPath();g.moveTo(64,64);g.lineTo(64+Math.cos(a)*l,64+Math.sin(a)*l);g.stroke();}
   return new T.CanvasTexture(c);};
 TX.soft=function(){const s=64,c=cv(s),g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,s,s);return new T.CanvasTexture(c);};
+TX.aoStrip=function(){const c=cv(64),g=c.getContext('2d'),gr=g.createLinearGradient(0,64,0,0);gr.addColorStop(0,'rgba(0,0,0,.62)');gr.addColorStop(.35,'rgba(0,0,0,.22)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);return new T.CanvasTexture(c);};
+TX.grassTuft=function(){const s=128,c=cv(s),g=c.getContext('2d');g.lineCap='round';
+  for(let i=0;i<34;i++){const x=rnd(14,114),h=rnd(50,120),lean=rnd(-26,26),k=Math.round(rnd(90,170));g.strokeStyle='rgb('+Math.round(k*.62)+','+k+','+Math.round(k*.38)+')';g.lineWidth=rnd(2,4.5);
+    g.beginPath();g.moveTo(x,s);g.quadraticCurveTo(x+lean*.3,s-h*.6,x+lean,s-h);g.stroke();}
+  const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;return t;};
 TX.hole=function(){const s=64,c=cv(s),g=c.getContext('2d'),gr=g.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,'rgba(0,0,0,.95)');gr.addColorStop(.25,'rgba(15,12,10,.8)');gr.addColorStop(.6,'rgba(40,36,30,.25)');gr.addColorStop(1,'rgba(40,36,30,0)');g.fillStyle=gr;g.fillRect(0,0,s,s);return new T.CanvasTexture(c);};
 
 /* UV em espaço-mundo: a textura mantém a escala real em caixas de qualquer tamanho (só caixas alinhadas aos eixos) */
@@ -91,11 +96,13 @@ TX.materials=function(){
   m.facade=TX.worldUV(S({map:TX.facade(),roughness:.9}),.085);
   m.crate=S({map:TX.img('crate',true),roughness:.85});
   m.paint=S({roughness:.42,metalness:.55});
+  m.glass=S({color:0x9fc4d8,transparent:true,opacity:.3,roughness:.04,metalness:.7,depthWrite:false});
   m.dark=S({color:0x1c1d20,roughness:.8,metalness:.2});
   const gt=TX.img('grass',true),gn=TX.img('grassN');gt.repeat.set(34,34);gn.repeat.set(34,34);
   m.ground=S({map:gt,normalMap:gn,roughness:1,color:0xd8d2c0});
   const dt=TX.dirt();m.dirt=TX.worldUV(S({map:dt,bumpMap:dt,bumpScale:.02,roughness:1}),.22);
   for(const k in m)m[k].envMapIntensity=.55;
+  m.glass.envMapIntensity=1.8;
   return m;
 };
 })();

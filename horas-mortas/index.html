@@ -75,6 +75,7 @@
   #buy b{font-size:16px;width:92px;flex:none}#buy span{font-size:12.5px;color:var(--dim)}
   #buy p{margin:0;padding:8px 14px;font-size:11.5px;color:var(--dim);border-top:1px solid var(--line)}
   #focus{position:absolute;inset:0;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,rgba(60,120,255,.06) 30%,rgba(40,90,255,.34) 100%)}
+  #focusT{position:absolute;left:0;right:0;top:72%;text-align:center;font-size:18px;font-weight:700;letter-spacing:.14em;color:#9fc4ff}
   #xp{position:absolute;left:50%;top:102px;transform:translateX(-50%);width:262px;height:4px;background:rgba(0,0,0,.5);display:none}
   #xpFill{display:block;height:100%;background:var(--acc);width:0}
   #perk{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(470px,94vw);background:rgba(8,10,10,.93);border:1px solid var(--acc);display:none;pointer-events:auto;text-shadow:none}
@@ -135,7 +136,7 @@
   <div id="xp"><i id="xpFill"></i></div>
   <div id="pops"></div>
   <div id="center"><div id="big"></div><div id="sub"></div></div>
-  <div id="streak"></div>
+  <div id="streak"></div><div id="focusT"></div>
   <div id="bl"><span class="lab">Vida</span><div class="bar"><i id="hpFill"></i></div></div>
   <div id="br"><div class="lab" id="wName">—</div><div id="ammo">0 <small>/ 0</small></div>
     <div id="equip"><div class="eq" id="eqDash" style="display:none"><kbd>E</kbd>DASH<div class="cd"></div></div><div class="eq" id="eqFocus" style="display:none"><kbd>V</kbd>FOCO<div class="cd"></div></div><div class="eq"><kbd>B</kbd>ARMAS</div><div class="eq"><kbd>3</kbd>FACA</div><div class="eq" id="eqRadar"><kbd>F</kbd>RADAR<div class="cd"></div></div><div class="eq" id="eqNade"><kbd>G</kbd>GRANADA ×<span id="nadeN">2</span></div></div></div>
@@ -144,6 +145,9 @@
     <div data-id="smg"><kbd>2</kbd><b>SMG</b><span>cadência alta, forte ao perto, mais rápida a andar</span></div>
     <div data-id="shotgun"><kbd>3</kbd><b>Caçadeira</b><span>mata num tiro a curta distância</span></div>
     <div data-id="sniper"><kbd>4</kbd><b>Sniper</b><span>um tiro no corpo chega, luneta com o botão direito</span></div>
+    <h3>FACA</h3>
+    <div data-id="karambit"><kbd>5</kbd><b>Karambit</b><span>lâmina curva, golpes em arco, gira no dedo</span></div>
+    <div data-id="butterfly"><kbd>6</kbd><b>Butterfly</b><span>abre a rodar; R com a faca na mão repete o truque</span></div>
     <p>Carrega no número para equipar já · B fecha</p></div>
   <div id="perk"><h3>ESCOLHE UMA HABILIDADE</h3><div id="perkCards"></div><p>Carrega em 1, 2 ou 3 · o jogo está parado</p></div>
   <div id="board"><h3 id="boardH">CLASSIFICAÇÃO · TODOS CONTRA TODOS</h3><table id="boardT"></table></div>

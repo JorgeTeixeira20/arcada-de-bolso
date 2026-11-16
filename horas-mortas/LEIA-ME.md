@@ -7,7 +7,9 @@ Deathmatch todos-contra-todos para um jogador contra bots, por tempo (3, 5 ou 10
 - **Deathmatch:** todos contra todos, por tempo, no mapa Subúrbio.
 - **Incursão:** avanças sala a sala num complexo de 12 salas (armazém, pátio, contentores, ruínas, bunker, casa, oficina, praça). Limpas a sala, o portão abre e segues para o nível seguinte. Depois da 12.ª sala gera-se um setor novo, mais difícil. A cada 5 níveis há um chefe. Ganhas uma habilidade por sala limpa e outra sempre que a barra de experiência dos abates enche. Morreres acaba a incursão.
 
-Habilidades ativas que se desbloqueiam na Incursão: **E** dash, **V** foco (abranda os inimigos).
+Na Incursão tens duas habilidades ativas desde o início: **E** dash e **V** foco (abranda os inimigos durante uns segundos, o ecrã fica azulado). As escolhas entre salas melhoram-nas.
+
+Cada sala tem cobertura garantida junto às portas, e os inimigos esperam cerca de 2 segundos antes de disparar quando entras.
 
 ## Como correr
 
@@ -28,7 +30,8 @@ Também funciona abrindo o `index.html` com duplo clique.
 | C ou Ctrl (segurar) | Baixar. Se vieres a correr, desliza |
 | 1 / 2 / 3 | Arma principal / pistola / faca (com a faca corres mais depressa) |
 | Q | Volta à última arma usada |
-| B | Menu para escolher a arma principal (1 a 4 equipa logo) |
+| B | Menu de armas: 1 a 4 arma principal, 5 Karambit, 6 Butterfly |
+| R (com a faca) | Repete a animação da faca |
 | G ou 4 | Granada na mão, com linha de trajetória; clique esquerdo lança |
 | R | Recarregar |
 | F | Radar |

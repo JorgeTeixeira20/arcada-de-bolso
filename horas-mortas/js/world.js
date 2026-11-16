@@ -47,7 +47,10 @@ function buildOnce(kind,seedVal){
     yb=yb||0;ops=(ops||[]).slice().sort((p,q)=>p.c-q.c);let cur=a0;
     const put=(s,e,ya,yt)=>{if(e-s<.02||yt-ya<.02)return;if(axis==='x')add(mat,s,e,yb+ya,yb+yt,fixed-t/2,fixed+t/2,col);else add(mat,fixed-t/2,fixed+t/2,yb+ya,yb+yt,s,e,col);};
     for(const o of ops){put(cur,o.c-o.w/2,0,h);if(o.y0>0)put(o.c-o.w/2,o.c+o.w/2,0,o.y0);if(o.y1<h)put(o.c-o.w/2,o.c+o.w/2,o.y1,h);cur=o.c+o.w/2;
-      if(o.y0>0&&o.y1-o.y0>.8){const f=.05,m='dark';if(axis==='x'){add(m,o.c-o.w/2,o.c+o.w/2,yb+o.y0-.06,yb+o.y0,fixed-t/2-f,fixed+t/2+f,0x4a4038,false);}else add(m,fixed-t/2-f,fixed+t/2+f,yb+o.y0-.06,yb+o.y0,o.c-o.w/2,o.c+o.w/2,0x4a4038,false);}}
+      const a0=o.c-o.w/2,a1=o.c+o.w/2,X=axis==='x',bx=(u0,u1,v0,v1,dp,mat2,col2)=>{if(X)add(mat2,u0,u1,yb+v0,yb+v1,fixed-dp,fixed+dp,col2,false);else add(mat2,fixed-dp,fixed+dp,yb+v0,yb+v1,u0,u1,col2,false);};
+      if(o.y0>0&&o.y1-o.y0>.8){const f=t/2+.05;bx(a0-.06,a1+.06,o.y0-.07,o.y0,f,'dark',0x4a4038);bx(a0-.06,a1+.06,o.y1,o.y1+.06,f,'dark',0x4a4038);bx(a0-.06,a0,o.y0,o.y1,f,'dark',0x4a4038);bx(a1,a1+.06,o.y0,o.y1,f,'dark',0x4a4038);
+        bx(o.c-.025,o.c+.025,o.y0,o.y1,.03,'dark',0x3a3430);bx(a0,a1,(o.y0+o.y1)/2-.02,(o.y0+o.y1)/2+.02,.03,'dark',0x3a3430);bx(a0,a1,o.y0,o.y1,.012,'glass',0xffffff);}
+      else if(o.y0===0&&o.y1>=2.2&&o.y1<3&&o.w<=2.4){const f=t/2+.04;bx(a0-.09,a0,0,o.y1+.09,f,'wood',0x5a4634);bx(a1,a1+.09,0,o.y1+.09,f,'wood',0x5a4634);bx(a0,a1,o.y1,o.y1+.09,f,'wood',0x5a4634);}}
     put(cur,a1,0,h);
   }
   const roofs=[];
@@ -56,7 +59,8 @@ function buildOnce(kind,seedVal){
     wall(mat,col,'x',z0+t/2,t,x0,x1,h,o.n);wall(mat,col,'x',z1-t/2,t,x0,x1,h,o.s);wall(mat,col,'z',x0+t/2,t,z0+t,z1-t,h,o.w);wall(mat,col,'z',x1-t/2,t,z0+t,z1-t,h,o.e);
     add(o.floor||'concrete',x0-.5,x1+.5,-.4,.04,z0-.5,z1+.5,o.floorCol||0xb0aea6,false);
     if(o.roof==='pitch'){add('wood',x0,x1,h,h+.12,z0,z1,0x8a7a66);roofs.push({x0:x0-.5,x1:x1+.5,z0:z0-.5,z1:z1+.5,y:h+.12,col:o.roofCol||0x8a4030});}
-    else if(o.roof!=='none'){add(o.roofMat||'concrete',x0-.35,x1+.35,h,h+.3,z0-.35,z1+.35,o.roofCol||0x9a978e);add(o.roofMat||'concrete',x0-.35,x1+.35,h+.3,h+.6,z0-.35,x0-.35===x0-.35?z0-.05:z0,o.roofCol||0x9a978e,false);
+    else if(o.roof!=='none'){add(o.roofMat||'concrete',x0-.35,x1+.35,h,h+.3,z0-.35,z1+.35,o.roofCol||0x9a978e);
+      if((x1-x0)*(z1-z0)>40){const ax2=rr(x0+1.5,x1-2.5),az2=rr(z0+1.5,z1-2);add('metal',ax2,ax2+1.3,h+.3,h+1.1,az2,az2+.8,0x9aa3a8,false);add('dark',ax2+.15,ax2+1.15,h+1.1,h+1.14,az2+.1,az2+.7,0x444444,false);const vx=rr(x0+1,x1-1.5),vz=rr(z0+1,z1-1.5);add('metal',vx,vx+.35,h+.3,h+.9,vz,vz+.35,0x7d868b,false);}add(o.roofMat||'concrete',x0-.35,x1+.35,h+.3,h+.6,z0-.35,x0-.35===x0-.35?z0-.05:z0,o.roofCol||0x9a978e,false);
       add(o.roofMat||'concrete',x0-.35,x1+.35,h+.3,h+.6,z1+.05,z1+.35,o.roofCol||0x9a978e,false);add(o.roofMat||'concrete',x0-.35,x0-.05,h+.3,h+.6,z0-.35,z1+.35,o.roofCol||0x9a978e,false);add(o.roofMat||'concrete',x1+.05,x1+.35,h+.3,h+.6,z0-.35,z1+.35,o.roofCol||0x9a978e,false);}
     W.rects.push({x0,z0,x1,z1,k:o.k||'casa'});W.pois.push({x:(x0+x1)/2,z:(z0+z1)/2});
   }
@@ -116,6 +120,16 @@ function buildOnce(kind,seedVal){
       W.rects.push({x0:xa,z0:z-.35,x1:xb,z1:z+.35,k:'wall'});
     }
     W.gates.sort((p,q)=>p.from-q.from);
+    const cover=(R,x,z,alongX,len,hgt,bag)=>{x=Math.round(x*2)/2;z=Math.round(z*2)/2;const w=alongX?len:.8,d=alongX?.8:len;R.fp.push({x,z,w,d});
+      if(bag)sandbags(x-w/2,z-d/2,x+w/2,z+d/2,hgt);else add('concrete',x-w/2+.1,x+w/2-.1,0,hgt,z-d/2+.1,z+d/2-.1,0xb0aca2);};
+    for(const R of W.rooms){
+      for(const q of R.doors){const vert=Math.abs(q.x-R.x0)<1.2||Math.abs(q.x-R.x1)<1.2,nx=vert?Math.sign(R.cx-q.x):0,nz=vert?0:Math.sign(R.cz-q.z),tx=-nz,tz=nx,o1=rr(-.6,.6);
+        cover(R,q.x+nx*5.4+tx*o1,q.z+nz*5.4+tz*o1,!vert,3.6,1.3,rng()<.5);
+        const sd=rng()<.5?-1:1;cover(R,q.x+nx*3.2+tx*sd*4.2,q.z+nz*3.2+tz*sd*4.2,vert,2.6,2.3,false);}
+    }
+    {const R=W.rooms[0],ex=R.exit;let best=null,bd=-1;for(const c of [[R.x0+4.5,R.z0+4.5],[R.x1-4.5,R.z0+4.5],[R.x0+4.5,R.z1-4.5],[R.x1-4.5,R.z1-4.5]]){const d=Math.hypot(c[0]-ex.x,c[1]-ex.z);if(d>bd){bd=d;best=c;}}
+      R.start={x:best[0],z:best[1]};const dx=R.cx-best[0],dz=R.cz-best[1];R.fp.push({x:best[0],z:best[1],w:2.4,d:2.4});
+      cover(R,best[0]+Math.sign(dx)*3,best[1],false,4.2,1.35,true);cover(R,best[0],best[1]+Math.sign(dz)*3,true,4.2,1.35,false);}
     // tenta colocar um objeto de pegada w×d dentro da sala, longe das portas e dos outros
     function place(R,w,d,cb,tries){
       for(let t=0;t<(tries||30);t++){
@@ -156,6 +170,7 @@ function buildOnce(kind,seedVal){
       else{add('concrete',R.cx-9,R.cx+9,-.4,.03,R.cz-9,R.cz+9,0xb5b2a8,false);
         place(R,5,5,(x,z)=>{add('concrete',x-2.4,x+2.4,0,.5,z-2.4,z+2.4,0xb2aea2);add('concrete',x-1.6,x+1.6,.5,1.15,z-1.6,z+1.6,0xa8a498);add('concrete',x-.55,x+.55,1.15,5.2,z-.55,z+.55,0x9c988c);});
         bars(R,6);trees2(R,4);cars(R,1);bags(R,2);for(let k=0;k<2;k++)place(R,.6,.6,(x,z)=>lamp(x,z));}
+      bags(R,3);walls(R,2,'concrete',0xa9a59a);bars(R,2);
     }
   }
 
@@ -166,6 +181,8 @@ function buildOnce(kind,seedVal){
   [[-60,-4.9,-4.9,-4],[4,60,-4.9,-4],[-60,-4.9,4,4.9],[4,60,4,4.9]].forEach(q=>{add('concrete',q[0],q[1],-.3,.11,q[2],q[3],0xb8b8b0,false);});
   [[-4.9,-4,-60,-4.9],[-4.9,-4,4.9,60],[4,4.9,-60,-4.9],[4,4.9,4.9,60]].forEach(q=>{add('concrete',q[0],q[1],-.3,.11,q[2],q[3],0xb8b8b0,false);});
   add('dirt',-59.5,-5,-.4,.012,5,59.5,0xb0a690,false);add('dirt',9,36,-.4,.012,9,33,0xa89c84,false);add('dirt',-24,-5,-.4,.012,-27.5,-5,0xa89c84,false);add('asphalt',42,58,-.4,.012,-40,-18,0xcfcfcf,false);
+  for(let k=-3.4;k<3.5;k+=.9){add('plaster',k,k+.5,0,.034,-8,-5.4,0xe8e2c8,false);add('plaster',k,k+.5,0,.034,5.4,8,0xe8e2c8,false);add('plaster',-8,-5.4,0,.034,k,k+.5,0xe8e2c8,false);add('plaster',5.4,8,0,.034,k,k+.5,0xe8e2c8,false);}
+  for(let i=0;i<70;i++){const e=Math.floor(rng()*4),u=rr(-57,57);if(Math.abs(u)<7)continue;const x=e===0?-58.6:e===1?58.6:u,z=e===2?-58.6:e===3?58.6:u;decor.push({k:'bush',x,z,s:rr(.7,1.3)});}
   // muro exterior
   add('concrete',-61,61,0,3.4,-61,-60,0xa8a59c);add('concrete',-61,61,0,3.4,60,61,0xa8a59c);add('concrete',-61,-60,0,3.4,-60,60,0xa8a59c);add('concrete',60,61,0,3.4,-60,60,0xa8a59c);
   for(let i=-58;i<=58;i+=8){add('concrete',i-.3,i+.3,0,3.8,-61.2,-59.8,0x8f8c84,false);add('concrete',i-.3,i+.3,0,3.8,59.8,61.2,0x8f8c84,false);add('concrete',-61.2,-59.8,0,3.8,i-.3,i+.3,0x8f8c84,false);add('concrete',59.8,61.2,0,3.8,i-.3,i+.3,0x8f8c84,false);}
@@ -250,7 +267,27 @@ function buildOnce(kind,seedVal){
   function instanced(geo,mat,list,fn,noShadow){
     const m=new T.InstancedMesh(geo,mat,list.length);list.forEach((o,i)=>{dummy.rotation.set(0,0,0);dummy.scale.set(1,1,1);m.setColorAt(i,WHITE);fn(o,i,m);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);});
     m.frustumCulled=false;m.castShadow=!noShadow;m.receiveShadow=true;m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;scene.add(m);return m;}
-  for(const k in inst)instanced(unit,M[k],inst[k],(o,i,m)=>{dummy.position.set(o.x,o.y,o.z);dummy.scale.set(o.sx,o.sy,o.sz);m.setColorAt(i,C(o.c));});
+  for(const k in inst){const im=instanced(unit,M[k],inst[k],(o,i,m)=>{dummy.position.set(o.x,o.y,o.z);dummy.scale.set(o.sx,o.sy,o.sz);m.setColorAt(i,C(o.c));});if(k==='glass'){im.castShadow=false;im.renderOrder=2;}}
+  // sombra de contacto na base de paredes e objetos
+  const strips=[];for(const b of W.boxes){if(b.y0>.15||b.y1<.6||b.gate)continue;const w=b.x1-b.x0,d=b.z1-b.z0,cx2=(b.x0+b.x1)/2,cz2=(b.z0+b.z1)/2,g2=Math.min(.9,.35+b.y1*.12);
+    strips.push({x:cx2,z:b.z0-g2/2,l:w,g:g2,r:0},{x:cx2,z:b.z1+g2/2,l:w,g:g2,r:Math.PI},{x:b.x0-g2/2,z:cz2,l:d,g:g2,r:Math.PI/2},{x:b.x1+g2/2,z:cz2,l:d,g:g2,r:-Math.PI/2});}
+  const sg=new T.PlaneGeometry(1,1);sg.rotateX(-Math.PI/2);
+  const sm=new T.MeshBasicMaterial({map:TX.aoStrip(),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,toneMapped:false});
+  const sI=instanced(sg,sm,strips,(o,i)=>{dummy.position.set(o.x,.048+(i%7)*.0006,o.z);dummy.rotation.set(0,o.r,0);dummy.scale.set(o.l,1,o.g);},true);sI.receiveShadow=false;sI.renderOrder=1;
+  // tufos de erva
+  const tufts=[],inRect=(x,z,m)=>W.rects.some(q=>x>q.x0-m&&x<q.x1+m&&z>q.z0-m&&z<q.z1+m);
+  if(kind==='complexo'){for(let i=0;i<5200&&tufts.length<900;i++){const R2=W.rooms[Math.floor(rng()*W.rooms.length)];if(R2.theme==='armazem'||R2.theme==='patio'||R2.theme==='oficina')continue;
+      const e=Math.floor(rng()*4),u=rng(),dd=rr(.3,2.2),x=e<2?R2.x0+u*(R2.x1-R2.x0):(e===2?R2.x0+dd:R2.x1-dd),z=e<2?(e===0?R2.z0+dd:R2.z1-dd):R2.z0+u*(R2.z1-R2.z0);
+      if(R2.doors.some(q=>Math.hypot(q.x-x,q.z-z)<3)||inRect(x,z,.3))continue;tufts.push({x,z,s:rr(.6,1.3)});}}
+  else{for(let i=0;i<14000&&tufts.length<3200;i++){const x=rr(-59,59),z=rr(-59,59);if(Math.abs(x)<5.2||Math.abs(z)<5.2)continue;
+      if((x<-5&&z>5)||(x>9&&x<36&&z>9&&z<33)||(x>-24&&x<-5&&z>-27.5&&z<-5)||(x>42&&z>-40&&z<-18))continue;if(inRect(x,z,.6))continue;tufts.push({x,z,s:rr(.6,1.4)});}
+    for(let i=0;i<500;i++){const a=rr(0,6.283),r=rr(62,74);tufts.push({x:Math.cos(a)*r,z:Math.sin(a)*r,s:rr(1,1.8)});}}
+  const tp=[],tu=[],quad=(a)=>{const c=Math.cos(a)*.5,s2=Math.sin(a)*.5;tp.push(-c,0,-s2, c,0,s2, c,1,s2, -c,0,-s2, c,1,s2, -c,1,-s2);tu.push(0,0,1,0,1,1,0,0,1,1,0,1);};quad(0);quad(Math.PI/2);
+  const tg2=new T.BufferGeometry();tg2.setAttribute('position',new T.Float32BufferAttribute(tp,3));tg2.setAttribute('uv',new T.Float32BufferAttribute(tu,2));tg2.computeVertexNormals();
+  const tm=new T.MeshStandardMaterial({map:TX.grassTuft(),alphaTest:.45,side:T.DoubleSide,roughness:1});tm.envMapIntensity=.3;const tcol=[C(0xb8b890),C(0x9aa878),C(0xc8c098),C(0x8a9868)];
+  if(tufts.length){const tI=instanced(tg2,tm,tufts,(o,i,m)=>{dummy.position.set(o.x,0,o.z);dummy.rotation.set(0,i*1.7,0);dummy.scale.set(o.s*.75,o.s*.5,o.s*.75);m.setColorAt(i,tcol[i%4]);},true);}
+  const bushes=decor.filter(d=>d.k==='bush');if(bushes.length)instanced(new T.IcosahedronGeometry(1,1),new T.MeshStandardMaterial({color:0xffffff,roughness:.95,flatShading:true}),bushes,(o,i,m)=>{dummy.position.set(o.x,.45*o.s,o.z);dummy.rotation.set(i,i*3,0);dummy.scale.set(o.s,o.s*.62,o.s*.9);m.setColorAt(i,C([0x3c4f26,0x4a5a2c,0x36481f][i%3]));});
+  const leafM0=()=>new T.MeshStandardMaterial({color:0xffffff,roughness:.95,flatShading:true});
   const by=k=>decor.filter(d=>d.k===k),trees=by('tree'),barrels=by('barrel'),wheels=by('wheel'),lamps=by('lamp');
   const bark=new T.MeshStandardMaterial({color:C(0x5a4632),roughness:1}),leafM=new T.MeshStandardMaterial({color:0xffffff,roughness:.95,flatShading:true});
   const lc=[C(0x3c4f26),C(0x48592a),C(0x55602e),C(0x354824)];
