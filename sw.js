@@ -2,7 +2,7 @@
 // Responde logo com a cópia guardada e, se houver rede, atualiza-a em segundo plano
 // (as alterações aparecem na abertura seguinte). Ao adicionar ficheiros novos, junta-os
 // a ASSETS e sobe a versão de CACHE.
-const CACHE = 'arcada-v2';
+const CACHE = 'arcada-v3';
 const ASSETS = [
   './',
   'index.html',

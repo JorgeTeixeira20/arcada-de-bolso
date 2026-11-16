@@ -226,7 +226,7 @@
       let title, sub, stats;
       if (mode === 'targets') {
         const best = Arcade.store.get('reflex:targets', 0);
-        const rec = S.score > best;
+        const rec = S.score > best || S.recSet;
         if (rec) Arcade.store.set('reflex:targets', S.score);
         title = rec ? 'Novo recorde!' : 'Sem vidas';
         sub = rec ? 'Alvos' : `Recorde: ${best} alvos`;
@@ -241,7 +241,7 @@
         stats = [[avg + ' ms', 'média'], [Math.min(...S.tries) + ' ms', 'melhor'], [S.fouls, S.fouls === 1 ? 'falta' : 'faltas']];
       } else {
         const best = Arcade.store.get('reflex:seq', 0);
-        const rec = S.done > best;
+        const rec = S.done > best || S.recSet;
         if (rec) Arcade.store.set('reflex:seq', S.done);
         title = rec ? 'Novo recorde!' : 'Erraste';
         sub = rec ? 'Sequência' : `Recorde: ${best} luzes`;
@@ -260,9 +260,20 @@
       overlay.querySelector('[data-a=menu]').onclick = host.exit;
     }
 
+    // O recorde fica guardado mesmo que saias a meio da partida.
+    function commitBest() {
+      if (!S || phase === 'over') return;
+      let key, v;
+      if (mode === 'targets') { key = 'reflex:targets'; v = S.score; }
+      else if (mode === 'seq') { key = 'reflex:seq'; v = S.done; }
+      else return; // o tempo de reação é uma média: só conta com as 5 tentativas
+      if (v > Arcade.store.get(key, 0)) { Arcade.store.set(key, v); S.recSet = true; }
+    }
+
     function pause() {
       if (phase !== 'play') return;
       phase = 'paused';
+      commitBest();
       overlay.innerHTML = `
         <h2>Pausa</h2>
         <p>${MODES[mode].name}</p>
@@ -447,6 +458,7 @@
 
     return {
       destroy() {
+        commitBest();
         loop.stop();
         disposeCanvas();
         canvas.removeEventListener('pointerdown', onDown);

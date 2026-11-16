@@ -242,7 +242,7 @@
       ptr = null;
       const pts = score();
       const best = Arcade.store.get('runner:best', 0);
-      const record = pts > best;
+      const record = pts > best || S.recSet;
       if (record) Arcade.store.set('runner:best', pts);
       overlay.innerHTML = `
         <h2>${record ? 'Novo recorde!' : 'Fim da corrida'}</h2>
@@ -260,10 +260,18 @@
     }
 
     let resumePhase = 'play';
+
+    // O recorde fica guardado mesmo que saias a meio da partida.
+    function commitBest() {
+      if (!S) return;
+      const v = score();
+      if (v > Arcade.store.get('runner:best', 0)) { Arcade.store.set('runner:best', v); S.recSet = true; }
+    }
     function pause() {
       if (S.phase !== 'play' && S.phase !== 'ready') return;
       resumePhase = S.phase;
       S.phase = 'paused';
+      commitBest();
       ptr = null; S.holding = false; S.buffer = 0;
       overlay.innerHTML = `
         <h2>Pausa</h2>
@@ -451,6 +459,7 @@
 
     return {
       destroy() {
+        commitBest();
         loop.stop();
         disposeCanvas();
         canvas.removeEventListener('pointerdown', onDown);
