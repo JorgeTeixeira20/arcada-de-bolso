@@ -34,7 +34,7 @@ W.initEnv=function(scene,renderer,M){
 /* constrói um mapa: 'suburbio' (deathmatch) ou 'complexo' (incursão por salas). Devolve false se o mapa gerado não for todo percorrível. */
 function buildOnce(kind,seedVal){
   if(W.root){W.scene.remove(W.root);W.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.isInstancedMesh&&o.dispose)o.dispose();});}
-  const scene=W.root=new T.Group(),M=W.M;W.scene.add(scene);W.kind=kind;seed=seedVal||7;W.rooms=[];W.gates=[];
+  const scene=W.root=new T.Group(),M=W.M;W.scene.add(scene);W.kind=kind;seed=seedVal||7;W.rooms=[];W.gates=[];W.glass=[];W.glassMesh=null;
   W.boxes=[];W.circles=[];W.rects=[];W.spawns=[];W.pois=[];
   const inst={};
   function add(mat,x0,x1,y0,y1,z0,z1,col,solid){
@@ -267,7 +267,7 @@ function buildOnce(kind,seedVal){
   function instanced(geo,mat,list,fn,noShadow){
     const m=new T.InstancedMesh(geo,mat,list.length);list.forEach((o,i)=>{dummy.rotation.set(0,0,0);dummy.scale.set(1,1,1);m.setColorAt(i,WHITE);fn(o,i,m);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);});
     m.frustumCulled=false;m.castShadow=!noShadow;m.receiveShadow=true;m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;scene.add(m);return m;}
-  for(const k in inst){const im=instanced(unit,M[k],inst[k],(o,i,m)=>{dummy.position.set(o.x,o.y,o.z);dummy.scale.set(o.sx,o.sy,o.sz);m.setColorAt(i,C(o.c));});if(k==='glass'){im.castShadow=false;im.renderOrder=2;}}
+  for(const k in inst){const im=instanced(unit,M[k],inst[k],(o,i,m)=>{dummy.position.set(o.x,o.y,o.z);dummy.scale.set(o.sx,o.sy,o.sz);m.setColorAt(i,C(o.c));});if(k==='glass'){im.castShadow=false;im.renderOrder=2;W.glassMesh=im;W.glass=inst.glass.map((o,i)=>({x:o.x,y:o.y,z:o.z,hx:o.sx/2+.4,hy:o.sy/2,hz:o.sz/2+.4,i,broken:false}));}}
   // sombra de contacto na base de paredes e objetos
   const strips=[];for(const b of W.boxes){if(b.y0>.15||b.y1<.6||b.gate)continue;const w=b.x1-b.x0,d=b.z1-b.z0,cx2=(b.x0+b.x1)/2,cz2=(b.z0+b.z1)/2,g2=Math.min(.9,.35+b.y1*.12);
     strips.push({x:cx2,z:b.z0-g2/2,l:w,g:g2,r:0},{x:cx2,z:b.z1+g2/2,l:w,g:g2,r:Math.PI},{x:b.x0-g2/2,z:cz2,l:d,g:g2,r:Math.PI/2},{x:b.x1+g2/2,z:cz2,l:d,g:g2,r:-Math.PI/2});}
@@ -355,6 +355,8 @@ function buildOnce(kind,seedVal){
   return ok;
 }
 W.buildMap=function(kind,seedVal){for(let t=0;t<10;t++){if(buildOnce(kind,(seedVal||7)+t*101))return true;}return false;};
+const _zm=new T.Matrix4().makeScale(0,0,0);
+W.breakGlass=function(g){if(g.broken||!W.glassMesh)return;g.broken=true;W.glassMesh.setMatrixAt(g.i,_zm);W.glassMesh.instanceMatrix.needsUpdate=true;};
 W.setGate=function(gt,open){
   if(gt.open===open)return;gt.open=open;const b=gt.box,A=W.aabb,k=gt.bi*6;
   if(open){b.y1=-1;A[k]=1e9;A[k+1]=-1e9;for(const c of gt.cells)W.walk[c]=1;}
@@ -363,13 +365,13 @@ W.setGate=function(gt,open){
 W.randWalkIn=function(R,m){m=m||1.5;for(let k=0;k<80;k++){const x=R.x0+m+Math.random()*(R.x1-R.x0-2*m),z=R.z0+m+Math.random()*(R.z1-R.z0-2*m);if(W.isWalk(x,z))return{x,z};}return R.wc||{x:R.cx,z:R.cz};};
 
 /* ============ colisão e raios ============ */
-W.collide=function(p,r,feet){
+W.collide=function(p,r,feet,top){top=top||1.7;
   for(let it=0;it<2;it++){
     const l=W.grid.get(Math.floor((p.x+OFF)/CELL)*1000+Math.floor((p.z+OFF)/CELL));
     if(l)for(const o of l){
       if(o.c){if(o.y1<feet+.3)continue;const dx=p.x-o.x,dz=p.z-o.z,d=Math.hypot(dx,dz),m=r+o.r;if(d<m){if(d>1e-5){p.x=o.x+dx/d*m;p.z=o.z+dz/d*m;}else p.x+=m;}}
       else{
-        if(o.y1<feet+.45||o.y0>feet+1.7)continue;
+        if(o.y1<feet+.45||o.y0>feet+top)continue;
         const cx=clamp(p.x,o.x0,o.x1),cz=clamp(p.z,o.z0,o.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
         if(d2<r*r){
           if(d2>1e-8){const d=Math.sqrt(d2);p.x=cx+dx/d*r;p.z=cz+dz/d*r;}

@@ -34,7 +34,9 @@ Também funciona abrindo o `index.html` com duplo clique.
 | R (com a faca) | Repete a animação da faca |
 | G ou 4 | Granada na mão, com linha de trajetória; clique esquerdo lança |
 | R | Recarregar |
-| F | Radar |
+| F | Inspecionar a arma (um toque = uma vez; segurar = repete) |
+| X | Radar |
+| Baixar + saltar | Entra pelas janelas (parte o vidro) |
 | Tab | Classificação |
 | Esc | Pausa |
 | M | Som |
@@ -57,4 +59,9 @@ Nota sobre o Ctrl: fora do ecrã inteiro, Ctrl+W fecha o separador do browser e 
 - Animações de combate (correr com espingarda, andar de lado, recuar, apontar, recarregar, reação a tiro): pack "Basic Shooter" do Mixamo, convertido para `js/anims.js`.
 - Modelo e animações do soldado: `Soldier.glb`, dos exemplos do three.js (personagem "Vanguard" do Mixamo).
 - Texturas de tijolo, relva, madeira e caixote: dos exemplos do three.js.
+- Modelos 3D das armas (Sketchfab, licença CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/), com texturas reduzidas:
+  - "M16 Assault Rifle" de Mateusz Woliński (jeandiz)
+  - "Karambit" de Diamonddogkz
+  - "Butterfly Knife NOX Balisong" de Frobin_G
+  - "M9 Bayonet knife" de Michael Karel
 - Estes recursos servem para uso pessoal. Se algum dia quiseres publicar ou vender o jogo, confirma primeiro as licenças de cada um.

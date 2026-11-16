@@ -139,15 +139,16 @@
   <div id="streak"></div><div id="focusT"></div>
   <div id="bl"><span class="lab">Vida</span><div class="bar"><i id="hpFill"></i></div></div>
   <div id="br"><div class="lab" id="wName">—</div><div id="ammo">0 <small>/ 0</small></div>
-    <div id="equip"><div class="eq" id="eqDash" style="display:none"><kbd>E</kbd>DASH<div class="cd"></div></div><div class="eq" id="eqFocus" style="display:none"><kbd>V</kbd>FOCO<div class="cd"></div></div><div class="eq"><kbd>B</kbd>ARMAS</div><div class="eq"><kbd>3</kbd>FACA</div><div class="eq" id="eqRadar"><kbd>F</kbd>RADAR<div class="cd"></div></div><div class="eq" id="eqNade"><kbd>G</kbd>GRANADA ×<span id="nadeN">2</span></div></div></div>
+    <div id="equip"><div class="eq" id="eqDash" style="display:none"><kbd>E</kbd>DASH<div class="cd"></div></div><div class="eq" id="eqFocus" style="display:none"><kbd>V</kbd>FOCO<div class="cd"></div></div><div class="eq"><kbd>B</kbd>ARMAS</div><div class="eq"><kbd>3</kbd>FACA</div><div class="eq" id="eqRadar"><kbd>X</kbd>RADAR<div class="cd"></div></div><div class="eq" id="eqNade"><kbd>G</kbd>GRANADA ×<span id="nadeN">2</span></div></div></div>
   <div id="buy"><h3>ARMA PRINCIPAL</h3>
     <div data-id="ar"><kbd>1</kbd><b>Assalto</b><span>automática, equilibrada a qualquer distância</span></div>
     <div data-id="smg"><kbd>2</kbd><b>SMG</b><span>cadência alta, forte ao perto, mais rápida a andar</span></div>
     <div data-id="shotgun"><kbd>3</kbd><b>Caçadeira</b><span>mata num tiro a curta distância</span></div>
     <div data-id="sniper"><kbd>4</kbd><b>Sniper</b><span>um tiro no corpo chega, luneta com o botão direito</span></div>
     <h3>FACA</h3>
-    <div data-id="karambit"><kbd>5</kbd><b>Karambit</b><span>lâmina curva, golpes em arco, gira no dedo</span></div>
-    <div data-id="butterfly"><kbd>6</kbd><b>Butterfly</b><span>abre a rodar; R com a faca na mão repete o truque</span></div>
+    <div data-id="karambit"><kbd>5</kbd><b>Karambit</b><span>lâmina curva, golpes em arco, gira no dedo · F inspeciona (segura para repetir)</span></div>
+    <div data-id="butterfly"><kbd>6</kbd><b>Butterfly</b><span>roda ao sacar</span></div>
+    <div data-id="m9"><kbd>7</kbd><b>Baioneta M9</b><span>lâmina direita, estocada</span></div>
     <p>Carrega no número para equipar já · B fecha</p></div>
   <div id="perk"><h3>ESCOLHE UMA HABILIDADE</h3><div id="perkCards"></div><p>Carrega em 1, 2 ou 3 · o jogo está parado</p></div>
   <div id="board"><h3 id="boardH">CLASSIFICAÇÃO · TODOS CONTRA TODOS</h3><table id="boardT"></table></div>
@@ -176,9 +177,9 @@
   </div>
   <div class="keys">
     <div><b>WASD</b> mexer · <b>Shift</b> correr</div><div><b>Rato esq.</b> disparar · <b>dir.</b> mira</div>
-    <div><b>C</b> ou <b>Ctrl</b> (segurar) baixar</div><div>A correr + <b>C</b>: deslizar</div>
+    <div><b>C</b>/<b>Ctrl</b> baixar · saltar baixado entra pelas janelas</div><div>A correr + <b>C</b>: deslizar</div>
     <div><b>1</b> principal · <b>2</b> pistola · <b>3</b> faca</div><div><b>Q</b> última arma · <b>B</b> escolher arma</div>
-    <div><b>G</b> granada na mão, clique lança</div><div><b>R</b> recarregar · <b>F</b> radar</div>
+    <div><b>G</b> granada na mão, clique lança</div><div><b>R</b> recarregar · <b>X</b> radar · <b>F</b> inspecionar</div>
     <div><b>Tab</b> classificação · <b>Esc</b> pausa</div><div>Com a faca corres mais depressa</div>
   </div>
 </div></div>
@@ -208,6 +209,7 @@
 <script src="js/tex.js"></script>
 <script src="js/world.js"></script>
 <script src="js/anims.js"></script>
+<script src="js/models.js"></script>
 <script src="js/chars.js"></script>
 <script src="js/game.js"></script>
 </body>

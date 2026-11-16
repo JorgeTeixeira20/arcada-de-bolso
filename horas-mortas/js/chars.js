@@ -63,7 +63,7 @@ CH.make=function(i){
   model.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='VanguardBodyMat'){o.material=o.material.clone();o.material.color.multiply(tint);}});
   const B=n=>model.getObjectByName('mixamorig'+n),mixer=new T.AnimationMixer(model);
   const h={g:root,model,mixer,pitch:0,aimK:0,deadT:-1,flinch:0,fall:1,relK:0,hitK:0,w:{},act:{},
-    sp1:B('Spine1'),sp2:B('Spine2'),rA:B('RightArm'),rF:B('RightForeArm'),rH:B('RightHand'),lA:B('LeftArm'),lF:B('LeftForeArm'),lH:B('LeftHand'),head:B('Head'),gun:tpGun(),offM:null};
+    sp1:B('Spine1'),sp2:B('Spine2'),rA:B('RightArm'),rF:B('RightForeArm'),rH:B('RightHand'),lA:B('LeftArm'),lF:B('LeftForeArm'),lH:B('LeftHand'),head:B('Head'),gun:CH.gunFactory?CH.gunFactory():tpGun(),offM:null};
   root.add(h.gun);
   if(CH.clips){
     const A=(k,w)=>{const a=mixer.clipAction(CH.clips[k]);a.play();a.setEffectiveWeight(w);h.act[k]=a;h.w[k]=w;return a;};
