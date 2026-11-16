@@ -753,7 +753,11 @@ function fx(dt){
   if(o.mag){let dr=0;if(rt>=.12&&rt<.42)dr=(rt-.12)/.3*.3;else if(rt>=.42&&rt<.7)dr=(1-(rt-.42)/.28)*.3;if(o.magDir)o.mag.position.copy(o.magBase).addScaledVector(o.magDir,dr);else o.mag.position.y=o.magY-dr;o.mag.visible=!(rt>=.38&&rt<.46);}
   const dk=P.drawT>0?P.drawT/.65:0;
   if(o.spin)o.spin.rotation.x=-dk*dk*TAU*2;
-  if(o.pivot){o.pivot.rotation.x=dk*TAU*1.0;if(o.hB){o.hB.rotation.x=Math.PI*Math.min(1,dk*1.5);o.hA.rotation.x=-Math.PI*Math.max(0,dk*2.2-1.2)*.35;}}
+  if(o.bf){ /* abrir: lâmina e cabo solto rodam juntos 180°, depois o cabo solto dá a volta e fecha na mão */
+    let u=1-dk;if(P.inspK>.01&&P.insp){const ph=(P.inspT||0)/(P.inspD||2.6);u=ph<.3?1-ph/.3:ph<.42?0:ph<.9?(ph-.42)/.48:1;}
+    const e=x=>{x=clamp(x,0,1);return x*x*(3-2*x);},e1=e(u/.55),e2=e((u-.4)/.6);
+    o.bf.g1.rotation.x=-Math.PI*(1-e1);o.bf.g2.rotation.x=Math.PI*(1-e2);o.pivot.rotation.x=Math.sin(u*Math.PI)*.5;o.pivot.rotation.z=Math.sin(u*Math.PI*2)*.25;}
+  else if(o.pivot){o.pivot.rotation.x=dk*TAU*1.0;if(o.hB){o.hB.rotation.x=Math.PI*Math.min(1,dk*1.5);o.hA.rotation.x=-Math.PI*Math.max(0,dk*2.2-1.2)*.35;}}
   if(o.pump){if(wi.id==='shotgun')o.pump.position.z=-.3+bt*.09+(rt>=0?Math.abs(Math.sin(rt*Math.PI*5))*.05:0);else o.pump.position.z=.08+bt*.07;}
   muzzle.position.set(0,pist?.022:.012,-w.L);flash.position.copy(muzzle.position);eject.position.set(.03,.03,-.02);
   const scoped=wi.id==='sniper'&&a>.8;vmRoot.visible=!scoped;$('scope').style.display=scoped?'block':'none';
@@ -853,7 +857,14 @@ function clearExceptArms(g){for(const c of g.children.slice())if(c!==g.userData.
 function installModel(k){
   if(k==='m16'){
     const o=vm.ar,w=fitModel(MD.m16,.92);clearExceptArms(o.g);w.position.set(0,.03,-.06);o.pump=null;o.mdl=w;o.hip=MDO.hip;o.adsZ=MDO.adsZ;
-    w.updateMatrixWorld(true);let top=-1;['REAR_SIGHT','FRONT_SIGHT'].forEach(n=>{const q=w.getObjectByName(n);if(q){_bb.setFromObject(q);top=Math.max(top,_bb.max.y);}});if(top>0)MDO.sight=top+MDO.sd;o.g.add(w);
+    w.updateMatrixWorld(true);const rs=w.getObjectByName('REAR_SIGHT');o.g.add(w);
+    if(rs){_bb.setFromObject(rs);const by=_bb.max.y-.012,bz=(_bb.min.z+_bb.max.z)/2-.02;rs.visible=false;
+      const rd=new T.Group(),bk=CH.mat(0x16181a,{roughness:.55,metalness:.5}),bx=(sx,sy,sz,x,y,z)=>{const m=new T.Mesh(new T.BoxGeometry(sx,sy,sz),bk);m.position.set(x,y,z);m.frustumCulled=false;rd.add(m);return m;};
+      const ww=.04,hh=.034,dd=.045,tk=.004;bx(.03,.012,.07,0,.006,0);bx(ww+tk*2,tk,dd,0,.012+tk/2,0);bx(ww+tk*2,tk,dd,0,.012+tk*1.5+hh,0);bx(tk,hh,dd,-ww/2-tk/2,.012+tk+hh/2,0);bx(tk,hh,dd,ww/2+tk/2,.012+tk+hh/2,0);
+      const lens=new T.Mesh(new T.PlaneGeometry(ww,hh),new T.MeshBasicMaterial({color:0x7fb0c8,transparent:true,opacity:.1,depthWrite:false,side:T.DoubleSide}));lens.position.set(0,.012+tk+hh/2,-dd/2+.004);lens.frustumCulled=false;rd.add(lens);
+      const dot=new T.Mesh(new T.CircleGeometry(.0016,16),new T.MeshBasicMaterial({color:0xff2a1a,transparent:true,depthWrite:false,depthTest:false,side:T.DoubleSide,toneMapped:false}));dot.position.set(0,.012+tk+hh/2,-dd/2+.005);dot.renderOrder=20;dot.frustumCulled=false;rd.add(dot);
+      const halo=new T.Mesh(new T.CircleGeometry(.004,16),new T.MeshBasicMaterial({color:0xff2a1a,transparent:true,opacity:.18,depthWrite:false,depthTest:false,side:T.DoubleSide,toneMapped:false}));halo.position.copy(dot.position);halo.renderOrder=19;halo.frustumCulled=false;rd.add(halo);
+      rd.position.set(0,by,bz);o.g.add(rd);o.dot=rd;MDO.sight=by+.012+tk+hh/2;}
     const mg=w.getObjectByName('MAGAZINE');if(mg){camera.updateMatrixWorld(true);const Mx=new T.Matrix4().copy(mg.parent.matrixWorld).invert().multiply(vmRoot.matrixWorld);o.mag=mg;o.magBase=mg.position.clone();o.magDir=new T.Vector3(0,-1,0).applyMatrix4(Mx).sub(new T.Vector3(0,0,0).applyMatrix4(Mx));}else o.mag=null;
     WP.ar.sight=MDO.sight;WP.ar.L=.6;o.g.userData.grip=[0,-.055,.06];o.g.userData.fore=[0,-.035,-.3];
     CH.gunFactory=function(){const g=fitModel(MD.m16,1.0,{shadow:true});const h=new T.Group();g.rotation.y=Math.PI;g.position.set(0,.03,.13);h.add(g);return h;};
@@ -863,7 +874,25 @@ function installModel(k){
     const tl=o.spin.parent;tl.scale.setScalar(1);tl.rotation.set(1.3,.5,-.25);tl.position.set(-.005,.035,.03);o.g.userData.grip=[0,-.035,-.01];
   }else if(k==='butterfly'){
     const o=vm.butterfly,w=fitModel(MD.butterfly,.24,{pca:true,flip:MDO.bflip,flipUp:MDO.bup});for(const c of o.pivot.children.slice())o.pivot.remove(c);o.hA=o.hB=null;
-    const fl=new T.Group();fl.add(w);w.position.set(0,0,-.05);w.rotation.z=MDO.broll;o.pivot.add(fl);o.flip=fl;o.mdl=w;const tl=o.pivot.parent;tl.scale.setScalar(1);tl.rotation.set(.7,.45,-.2);o.g.userData.grip=[0,-.005,.03];
+    let K=w;o.bf=null;o.flip=null;
+    try{ /* separa a malha em lâmina + dois cabos (partes ligadas) e monta-os em dobradiças */
+      w.updateMatrixWorld(true);const parts={A:[],B:[],L:[]},v=new T.Vector3(),nm=new T.Matrix3();
+      w.traverse(q=>{if(!q.isMesh)return;const g0=q.geometry,pa=g0.attributes.position,na=g0.attributes.normal,ix=g0.index.array,M=q.matrixWorld;nm.getNormalMatrix(M);
+        const pos=new Float32Array(pa.count*3),nor=new Float32Array(pa.count*3),key=new Map(),id=new Int32Array(pa.count);let zc=0;
+        for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(M);pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z;zc+=v.z;const k=Math.round(v.x*2e4)+','+Math.round(v.y*2e4)+','+Math.round(v.z*2e4);if(!key.has(k))key.set(k,i);id[i]=key.get(k);
+          if(na){v.fromBufferAttribute(na,i).applyMatrix3(nm).normalize();nor[i*3]=v.x;nor[i*3+1]=v.y;nor[i*3+2]=v.z;}}
+        const par=new Int32Array(pa.count);for(let i=0;i<pa.count;i++)par[i]=i;const f=x=>{while(par[x]!==x){par[x]=par[par[x]];x=par[x];}return x;};
+        for(let i=0;i<ix.length;i+=3){const a=f(id[ix[i]]);par[f(id[ix[i+1]])]=a;par[f(id[ix[i+2]])]=a;}
+        const cy=new Map();for(let i=0;i<pa.count;i++){const r=f(id[i]);let c=cy.get(r);if(!c){c={s:0,n:0};cy.set(r,c);}c.s+=pos[i*3+1];c.n++;}
+        const handle=zc/pa.count>0,idx={A:[],B:[],L:[]};
+        for(let i=0;i<ix.length;i+=3){const c=cy.get(f(id[ix[i]])),k=!handle?'L':c.s/c.n<.0005?'A':'B';idx[k].push(ix[i],ix[i+1],ix[i+2]);}
+        for(const k in idx){if(!idx[k].length)continue;const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));if(na)g.setAttribute('normal',new T.BufferAttribute(nor,3));if(g0.attributes.uv)g.setAttribute('uv',g0.attributes.uv);g.setIndex(idx[k]);const m=new T.Mesh(g,q.material);m.frustumCulled=false;parts[k].push(m);}});
+      if(parts.A.length&&parts.B.length&&parts.L.length){
+        const pz=-.003,pA=new T.Vector3(0,-.003,pz),pB=new T.Vector3(0,.004,pz);K=new T.Group();parts.A.forEach(m=>K.add(m));
+        const g1=new T.Group();g1.position.copy(pA);K.add(g1);parts.L.forEach(m=>{m.position.copy(pA).negate();g1.add(m);});
+        const g2=new T.Group();g2.position.copy(pB).sub(pA);g1.add(g2);parts.B.forEach(m=>{m.position.copy(pB).negate();g2.add(m);});o.bf={g1,g2};}
+    }catch(e){console.warn('butterfly',e);K=w;o.bf=null;}
+    const fl=new T.Group();fl.add(K);K.position.set(0,0,-.05);K.rotation.z=MDO.broll;o.pivot.add(fl);if(!o.bf)o.flip=fl;o.mdl=K;const tl=o.pivot.parent;tl.scale.setScalar(1);tl.rotation.set(.7,.45,-.2);o.g.userData.grip=[0,-.005,.03];
   }else if(k==='m9'){
     const o={g:new T.Group(),mag:null,pump:null,magY:0},tl=new T.Group(),fl=new T.Group(),w=fitModel(MD.m9,.31,{ry:Math.PI});
     tl.rotation.set(.7,.45,-.2);tl.position.set(-.005,.03,.0);o.g.add(tl);tl.add(fl);fl.add(w);w.position.set(0,0,-.09);o.flip=fl;o.pivot=null;
@@ -871,7 +900,7 @@ function installModel(k){
   }
   const wi=P.slots&&P.slots[P.cur];if(wi&&P.alive)Object.keys(vm).forEach(q=>vm[q].g.visible=q===VK(wi.id));
 }
-const MDO={bflip:false,bup:false,broll:1.2,hip:[.14,-.17,-.5],adsZ:-.4,sight:.128,sd:.02};
+const MDO={bflip:false,bup:false,broll:1.2,hip:[.14,-.17,-.5],adsZ:-.3,sight:.128,sd:.02};
 function loadModels(){
   if(!window.MODELS||!T.GLTFLoader)return;let sh=false;try{window.createImageBitmap=undefined;sh=true;}catch(e){}
   Object.keys(window.MODELS).forEach(k=>{try{const bin=atob(window.MODELS[k]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
